@@ -53,11 +53,11 @@ async function main() {
         const tags = Array.isArray(club.tags) ? club.tags.join(", ") : "";
         const raw = (club.description ?? "").slice(0, 800);
 
-        const prompt = `Write ONE short sentence describing this University of Waterloo student club. Must be under 100 characters. No links, emojis, quotes, or recruiting language.
+        const prompt = `Summarize what this University of Waterloo student club actually does in 1-2 sentences. Be specific and accurate — use the scraped description as your primary source. If no description is available, write a reasonable summary based on the name and tags. Stay under 150 characters. No links, emojis, quotes, or recruiting language like "join us".
 
 Name: ${club.name}
 Tags: ${tags}
-Context: ${raw}`;
+Official description: ${raw || "(not available)"}`;
 
         try {
           const resp = await openai.responses.create({
@@ -66,9 +66,9 @@ Context: ${raw}`;
           });
 
           let summary = (resp.output_text ?? "").trim().replace(/\s+/g, " ");
-          if (summary.length > 120) {
-            const lastDot = summary.lastIndexOf(".", 120);
-            summary = lastDot > 40 ? summary.slice(0, lastDot + 1) : summary.slice(0, 117) + "...";
+          if (summary.length > 160) {
+            const lastDot = summary.lastIndexOf(".", 160);
+            summary = lastDot > 50 ? summary.slice(0, lastDot + 1) : summary.slice(0, 157) + "...";
           }
           return { id: club.id, name: club.name, short_description: summary, ok: true };
         } catch (err: any) {
