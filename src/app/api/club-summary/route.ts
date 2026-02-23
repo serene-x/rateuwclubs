@@ -1,15 +1,25 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let _openai: OpenAI | null = null;
+function getOpenAI() {
+  if (!_openai) _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  return _openai;
+}
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+let _supabase: SupabaseClient | null = null;
+function getServiceSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return _supabase;
+}
 
 function needsRefresh(updatedAt: string | null) {
   if (!updatedAt) return true;
@@ -22,6 +32,8 @@ export async function POST(req: Request) {
   try {
     const { clubName } = (await req.json()) as { clubName?: string };
     if (!clubName) return NextResponse.json({ error: "Missing clubName" }, { status: 400 });
+
+    const supabase = getServiceSupabase();
 
     const { data: club, error: fetchErr } = await supabase
       .from("clubs")
@@ -50,7 +62,7 @@ Tags: ${tags}
 Scraped description (may be empty): ${raw}
 `.trim();
 
-    const resp = await openai.responses.create({
+    const resp = await getOpenAI().responses.create({
       model: "gpt-4.1-mini",
       input: [{ role: "user", content: [{ type: "input_text", text: inputText }] }],
     });
