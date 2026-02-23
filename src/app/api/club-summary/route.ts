@@ -51,22 +51,23 @@ export async function POST(req: Request) {
     const tags = Array.isArray(club.tags) ? club.tags.join(", ") : "";
     const raw = (club.description ?? "").slice(0, 800);
 
-    const inputText = `Write a friendly, neutral 2-sentence description for a University of Waterloo student club.
-No links. No emojis. No quotes. No recruiting language ("join us"). No exaggeration.
-If description is missing, infer from the name and tags.
-Keep it under 180 characters total.
+    const inputText = `Write ONE short sentence describing this University of Waterloo student club. Must be under 100 characters. No links, emojis, quotes, or recruiting language.
 
 Name: ${club.name}
 Tags: ${tags}
-Scraped description (may be empty): ${raw}`;
+Context: ${raw}`;
 
     const resp = await getOpenAI().responses.create({
       model: "gpt-4.1-mini",
       input: [{ role: "user", content: [{ type: "input_text", text: inputText }] }],
     });
 
-    const summary = (resp.output_text ?? "").trim().replace(/\s+/g, " ");
-    const short_description = summary.slice(0, 220);
+    let summary = (resp.output_text ?? "").trim().replace(/\s+/g, " ");
+    if (summary.length > 120) {
+      const lastDot = summary.lastIndexOf(".", 120);
+      summary = lastDot > 40 ? summary.slice(0, lastDot + 1) : summary.slice(0, 117) + "...";
+    }
+    const short_description = summary;
 
     const { error: updateErr } = await supabase
       .from("clubs")

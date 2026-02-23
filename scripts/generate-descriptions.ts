@@ -39,13 +39,8 @@ async function main() {
     return;
   }
 
-  const needDesc = clubs.filter((c) => !c.short_description || c.short_description.trim() === "");
-  console.log(`${clubs.length} total clubs, ${needDesc.length} need descriptions.`);
-
-  if (needDesc.length === 0) {
-    console.log("All clubs already have descriptions.");
-    return;
-  }
+  const needDesc = clubs;
+  console.log(`${clubs.length} total clubs, regenerating all descriptions.`);
 
   let done = 0;
   let failed = 0;
@@ -58,14 +53,11 @@ async function main() {
         const tags = Array.isArray(club.tags) ? club.tags.join(", ") : "";
         const raw = (club.description ?? "").slice(0, 800);
 
-        const prompt = `Write a friendly, neutral 2-sentence description for a University of Waterloo student club.
-No links. No emojis. No quotes. No recruiting language ("join us"). No exaggeration.
-If description is missing, infer from the name and tags.
-Keep it under 180 characters total.
+        const prompt = `Write ONE short sentence describing this University of Waterloo student club. Must be under 100 characters. No links, emojis, quotes, or recruiting language.
 
 Name: ${club.name}
 Tags: ${tags}
-Scraped description (may be empty): ${raw}`;
+Context: ${raw}`;
 
         try {
           const resp = await openai.responses.create({
@@ -73,7 +65,11 @@ Scraped description (may be empty): ${raw}`;
             input: [{ role: "user", content: [{ type: "input_text", text: prompt }] }],
           });
 
-          const summary = (resp.output_text ?? "").trim().replace(/\s+/g, " ").slice(0, 220);
+          let summary = (resp.output_text ?? "").trim().replace(/\s+/g, " ");
+          if (summary.length > 120) {
+            const lastDot = summary.lastIndexOf(".", 120);
+            summary = lastDot > 40 ? summary.slice(0, lastDot + 1) : summary.slice(0, 117) + "...";
+          }
           return { id: club.id, name: club.name, short_description: summary, ok: true };
         } catch (err: any) {
           console.error(`  ✗ GPT error for "${club.name}": ${err.message}`);
