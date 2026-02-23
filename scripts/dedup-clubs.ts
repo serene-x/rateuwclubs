@@ -1,18 +1,3 @@
-/**
- * dedup-clubs.ts
- *
- * Finds and removes near-duplicate clubs in Supabase.
- * Two clubs are considered duplicates if their normalised names match
- * after stripping common prefixes/suffixes like "UW", "University of Waterloo",
- * "Club", parenthetical abbreviations, etc.
- *
- * For each group of duplicates, the one with the longest description (or most
- * tags) is kept and the rest are deleted.
- *
- * Usage:
- *   npx ts-node --esm scripts/dedup-clubs.ts
- */
-
 import dotenv from "dotenv";
 import path from "path";
 
@@ -25,11 +10,10 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-// ── Normalise a club name to a canonical key ──────────────────────────
 function normaliseKey(name: string): string {
   let s = name.toLowerCase().trim();
 
-  // strip parenthetical abbreviations:  "Chess Club (UW)" → "Chess Club"
+  // strip parenthetical abbreviations
   s = s.replace(/\s*\([^)]*\)\s*/g, " ");
 
   // strip common prefixes / suffixes
@@ -57,7 +41,6 @@ function normaliseKey(name: string): string {
   return s;
 }
 
-// ── Main ──────────────────────────────────────────────────────────────
 async function main() {
   // Fetch all clubs
   const { data: clubs, error } = await supabase

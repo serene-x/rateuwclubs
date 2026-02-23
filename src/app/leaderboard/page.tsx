@@ -76,7 +76,6 @@ export default function LeaderboardPage() {
   return (
     <main className="min-h-screen bg-white p-4">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <a
             href="/"
@@ -111,7 +110,6 @@ export default function LeaderboardPage() {
           </p>
         ) : (
           <div className="border border-gray-200 rounded-xl overflow-hidden">
-            {/* Top 3 */}
             {top3.map((r, idx) => (
               <div
                 key={r.club_id}
@@ -135,7 +133,6 @@ export default function LeaderboardPage() {
               </div>
             ))}
 
-            {/* Rest */}
             {rest.map((r, i) => (
               <div
                 key={r.club_id}

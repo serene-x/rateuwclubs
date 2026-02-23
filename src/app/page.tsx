@@ -16,8 +16,6 @@ type RankInfo = {
   score: number;
 };
 
-/* ── Google-Maps-style star rating ────────────────────────────── */
-
 function StarIcon({
   fill,
   size = 36,
@@ -98,13 +96,13 @@ function StarRating({
           }`}
           onMouseLeave={() => setHover(null)}
         >
-          {/* Left half → half-star */}
+          {/* left half */}
           <div
             className="absolute inset-0 w-1/2 z-10"
             onMouseEnter={() => setHover(star - 0.5)}
             onClick={() => !disabled && onRate(star - 0.5)}
           />
-          {/* Right half → full star */}
+          {/* right half */}
           <div
             className="absolute inset-0 left-1/2 w-1/2 z-10"
             onMouseEnter={() => setHover(star)}
@@ -116,8 +114,6 @@ function StarRating({
     </div>
   );
 }
-
-/* ── Tiny display stars (read-only, for rank reveal) ────────── */
 
 function MiniStars({ rating, size = 16 }: { rating: number; size?: number }) {
   return (
@@ -131,8 +127,6 @@ function MiniStars({ rating, size = 16 }: { rating: number; size?: number }) {
     </span>
   );
 }
-
-/* ── Main page ───────────────────────────────────────────────── */
 
 export default function Home() {
   const [club, setClub] = useState<Club | null>(null);
@@ -185,7 +179,6 @@ export default function Home() {
           setShortDesc(data.short_description);
         }
       } catch {
-        // silent fail
       } finally {
         if (!cancelled) setDescLoading(false);
       }
@@ -231,7 +224,6 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <span className="text-base font-semibold tracking-tight">
             rateuwclubs
@@ -244,7 +236,6 @@ export default function Home() {
           </a>
         </div>
 
-        {/* Card */}
         <div className="relative border border-gray-200 rounded-xl p-6 bg-white">
           {loading ? (
             <div className="space-y-3 animate-pulse">
@@ -259,12 +250,10 @@ export default function Home() {
             </p>
           ) : (
             <>
-              {/* Club name */}
               <h1 className="text-xl font-semibold text-center leading-snug">
                 {club.name}
               </h1>
 
-              {/* Tags */}
               {tagPills.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5 justify-center">
                   {tagPills.map((t) => (
@@ -278,7 +267,6 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Description */}
               <p className="mt-4 text-sm text-center text-gray-500 leading-relaxed min-h-[2.5rem]">
                 {descriptionToShow
                   ? descriptionToShow
@@ -287,13 +275,10 @@ export default function Home() {
                   : ""}
               </p>
 
-              {/* Divider */}
               <hr className="my-5 border-gray-100" />
 
-              {/* Star rating */}
               <StarRating onRate={handleRate} disabled={submitting} />
 
-              {/* Skip */}
               <div className="mt-5 text-center">
                 <button
                   onClick={handleSkip}
@@ -306,7 +291,6 @@ export default function Home() {
             </>
           )}
 
-          {/* Rank reveal overlay */}
           {showReveal && (
             <div className="absolute inset-0 rounded-xl bg-white/95 flex items-center justify-center">
               <div className="text-center">
@@ -330,7 +314,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* Footer */}
         <p className="mt-4 text-center text-[11px] text-gray-300">
           Rate clubs at the University of Waterloo
         </p>

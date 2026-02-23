@@ -1,16 +1,3 @@
-/**
- * seed-all-clubs.ts
- *
- * Seeds ALL known UW clubs into Supabase from a hand-curated master list.
- * Uses upsert on the `name` column so it's safe to re-run — existing clubs
- * keep their vote data, and new ones are inserted.
- *
- * Usage:
- *   npx ts-node --esm scripts/seed-all-clubs.ts
- *
- * Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local
- */
-
 import dotenv from "dotenv";
 import path from "path";
 
@@ -27,16 +14,11 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-// ─── Club type ────────────────────────────────────────────────────────
 type ClubRow = {
   name: string;
   description: string | null;
   tags: string[];
 };
-
-// ─── Master club list ─────────────────────────────────────────────────
-// Each section maps to a category. Clubs get their category tag plus
-// any keyword-inferred tags.
 
 const GENERAL_STUDENT_CLUBS: string[] = [
   "African Student Association (ASA)",
@@ -224,7 +206,6 @@ const SPORTS_AND_RECREATION: string[] = [
   "Warriors Band",
 ];
 
-// ─── Tag inference (matches scraper logic) ────────────────────────────
 function inferTags(text: string): string[] {
   const t = text.toLowerCase();
   const tags = new Set<string>();
@@ -250,7 +231,6 @@ function inferTags(text: string): string[] {
   return Array.from(tags).slice(0, 4);
 }
 
-// ─── Build rows ───────────────────────────────────────────────────────
 function buildRows(
   names: string[],
   categoryTag: string,
@@ -260,13 +240,12 @@ function buildRows(
     const tagSet = new Set([categoryTag, ...inferred]);
     return {
       name,
-      description: null, // GPT will generate descriptions on-the-fly
+      description: null,
       tags: Array.from(tagSet).slice(0, 4),
     };
   });
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────
 async function main() {
   const all: ClubRow[] = [
     ...buildRows(GENERAL_STUDENT_CLUBS, "Student Club"),
