@@ -51,16 +51,14 @@ export async function POST(req: Request) {
     const tags = Array.isArray(club.tags) ? club.tags.join(", ") : "";
     const raw = (club.description ?? "").slice(0, 800);
 
-    const inputText = `
-Write a friendly, neutral 1–2 sentence description for a University of Waterloo student club/team.
+    const inputText = `Write a friendly, neutral 2-sentence description for a University of Waterloo student club.
 No links. No emojis. No quotes. No recruiting language ("join us"). No exaggeration.
-If description is missing, infer only from the name and tags.
-Keep it under 220 characters.
+If description is missing, infer from the name and tags.
+Keep it under 180 characters total.
 
 Name: ${club.name}
 Tags: ${tags}
-Scraped description (may be empty): ${raw}
-`.trim();
+Scraped description (may be empty): ${raw}`;
 
     const resp = await getOpenAI().responses.create({
       model: "gpt-4.1-mini",
