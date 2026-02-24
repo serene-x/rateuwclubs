@@ -100,3 +100,5 @@ create policy "votes_select" on public.votes
   for select using (true);
 create policy "votes_insert" on public.votes
   for insert with check (true);
+
+-- Club suggestions from users

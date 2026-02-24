@@ -128,6 +128,132 @@ function MiniStars({ rating, size = 16 }: { rating: number; size?: number }) {
   );
 }
 
+function SuggestClubButton() {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
+    "idle"
+  );
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clubName: name.trim() }),
+      });
+      if (!res.ok) throw new Error();
+      setStatus("sent");
+      setName("");
+      setTimeout(() => {
+        setOpen(false);
+        setStatus("idle");
+      }, 1800);
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  return (
+    <>
+      {/* Floating button */}
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed bottom-5 right-5 z-50 flex items-center gap-1.5 rounded-full bg-gray-900 text-white px-4 py-2.5 text-sm font-medium shadow-lg hover:bg-gray-800 transition-colors cursor-pointer"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Suggest a Club
+      </button>
+
+      {/* Modal backdrop + dialog */}
+      {open && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={() => {
+            if (status !== "sending") {
+              setOpen(false);
+              setStatus("idle");
+              setName("");
+            }
+          }}
+        >
+          <div
+            className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold">Suggest a Club</h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Can&apos;t find your club? Submit its name and we&apos;ll review
+              it.
+            </p>
+
+            {status === "sent" ? (
+              <div className="mt-5 text-center py-4">
+                <span className="text-green-600 font-medium text-sm">
+                  ✓ Suggestion sent — thanks!
+                </span>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Club name"
+                  maxLength={200}
+                  autoFocus
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors"
+                />
+                {status === "error" && (
+                  <p className="text-xs text-red-500">
+                    Something went wrong. Please try again.
+                  </p>
+                )}
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      setStatus("idle");
+                      setName("");
+                    }}
+                    className="text-sm text-gray-500 hover:text-gray-700 transition-colors px-3 py-1.5 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!name.trim() || status === "sending"}
+                    className="text-sm font-medium bg-gray-900 text-white rounded-lg px-4 py-1.5 hover:bg-gray-800 disabled:opacity-40 transition-colors cursor-pointer"
+                  >
+                    {status === "sending" ? "Sending…" : "Submit"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function Home() {
   const [club, setClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(true);
@@ -314,10 +440,10 @@ export default function Home() {
           )}
         </div>
 
-        <p className="mt-4 text-center text-[11px] text-gray-300">
-          Rate clubs at the University of Waterloo
-        </p>
+        {/* Removed site tagline per request */}
       </div>
+
+      <SuggestClubButton />
     </main>
   );
 }
