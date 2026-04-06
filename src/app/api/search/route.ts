@@ -16,7 +16,7 @@ export async function GET(req: Request) {
 
   let query = supabase
     .from("clubs")
-    .select("id, name, tags, short_description, description");
+    .select("id, name, tags, short_description, description, link");
 
   if (q.length >= 2) {
     const pattern = `%${q}%`;
@@ -63,6 +63,7 @@ export async function GET(req: Request) {
       id: c.id,
       name: c.name,
       tags: c.tags,
+      link: c.link ?? null,
       short_description: c.short_description ?? c.description ?? null,
       avg_rating: s ? Math.round((s.sum / s.total) * 2) / 2 : 0,
       vote_count: s?.total ?? 0,

@@ -39,8 +39,15 @@ async function main() {
     return;
   }
 
-  const needDesc = clubs;
-  console.log(`${clubs.length} total clubs, regenerating all descriptions.`);
+  const needDesc = clubs.filter(
+    (c) => !c.short_description || c.short_description.trim().length === 0
+  );
+  console.log(`${clubs.length} total clubs, ${needDesc.length} need short descriptions.`);
+
+  if (needDesc.length === 0) {
+    console.log("all clubs already have short descriptions!");
+    return;
+  }
 
   let done = 0;
   let failed = 0;

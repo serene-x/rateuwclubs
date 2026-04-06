@@ -6,5 +6,25 @@ export async function GET() {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  return NextResponse.json({ leaderboard: data ?? [] });
+
+  const rows = data ?? [];
+  if (rows.length === 0) {
+    return NextResponse.json({ leaderboard: [] });
+  }
+
+  const ids = rows.map((r: any) => r.club_id);
+  const { data: clubs } = await supabase
+    .from("clubs")
+    .select("id, link")
+    .in("id", ids);
+
+  const linkMap = new Map<number, string | null>();
+  for (const c of clubs ?? []) linkMap.set(c.id, c.link ?? null);
+
+  const leaderboard = rows.map((r: any) => ({
+    ...r,
+    link: linkMap.get(r.club_id) ?? null,
+  }));
+
+  return NextResponse.json({ leaderboard });
 }

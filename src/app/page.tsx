@@ -28,6 +28,7 @@ type Club = {
   description: string | null;
   short_description?: string | null;
   tags: string[];
+  link?: string | null;
 };
 
 type RankInfo = {
@@ -440,7 +441,18 @@ export default function Home() {
           ) : (
             <>
               <h1 className="text-xl font-semibold text-center leading-snug">
-                {club.name}
+                {club.link ? (
+                  <a
+                    href={club.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    {club.name}
+                  </a>
+                ) : (
+                  club.name
+                )}
               </h1>
 
               {tagPills.length > 0 && (

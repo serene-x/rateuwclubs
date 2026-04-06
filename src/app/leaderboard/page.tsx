@@ -9,6 +9,7 @@ type Row = {
   vote_count: number;
   avg_rating: number;
   score: number;
+  link?: string | null;
 };
 
 function MiniStars({ rating, size = 14 }: { rating: number; size?: number }) {
@@ -121,7 +122,20 @@ export default function LeaderboardPage() {
                   {medals[idx]}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium text-sm truncate">{r.name}</div>
+                  <div className="font-medium text-sm truncate">
+                    {r.link ? (
+                      <a
+                        href={r.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:underline"
+                      >
+                        {r.name}
+                      </a>
+                    ) : (
+                      r.name
+                    )}
+                  </div>
                   <div className="flex items-center gap-2 mt-0.5">
                     <MiniStars rating={Number(r.avg_rating)} />
                     <span className="text-xs text-gray-400">
@@ -142,7 +156,20 @@ export default function LeaderboardPage() {
                   {i + 4}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm truncate">{r.name}</div>
+                  <div className="text-sm truncate">
+                    {r.link ? (
+                      <a
+                        href={r.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:underline"
+                      >
+                        {r.name}
+                      </a>
+                    ) : (
+                      r.name
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <MiniStars rating={Number(r.avg_rating)} size={12} />

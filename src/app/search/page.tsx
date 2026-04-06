@@ -9,6 +9,7 @@ type SearchResult = {
   short_description: string | null;
   avg_rating: number;
   vote_count: number;
+  link?: string | null;
 };
 
 const ALL_TAGS = [
@@ -336,7 +337,21 @@ export default function SearchPage() {
                 className="block border border-gray-200 rounded-xl p-5 bg-white hover:border-gray-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 cursor-pointer"
               >
                 <div className="text-center">
-                  <div className="font-semibold text-sm">{r.name}</div>
+                  <div className="font-semibold text-sm">
+                    {r.link ? (
+                      <a
+                        href={r.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="hover:underline"
+                      >
+                        {r.name}
+                      </a>
+                    ) : (
+                      r.name
+                    )}
+                  </div>
                   {r.tags.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1.5 justify-center">
                       {r.tags.slice(0, 3).map((t) => (
